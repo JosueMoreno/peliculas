@@ -1,30 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MovieSlider extends StatelessWidget {
-  const MovieSlider({super.key});
+import 'package:peliculas/models/models.dart';
+import 'package:peliculas/providers/providers.dart';
+
+class MovieSlider extends ConsumerWidget {
+  final String? title;
+  const MovieSlider({super.key, this.title});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue<void> response = ref.watch(popularResponseProvider);
+    final Popular popular = ref.watch(popularProvider);
+
     return SizedBox(
       height: 266,
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 13.0),
-            child: Text(
-              'Populares',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          if (title != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 13.0),
+              child: Text(
+                title!,
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
           const SizedBox(height: 7),
           Expanded(
-            child: ListView.builder(
-              itemCount: 22,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (BuildContext context, int index) =>
-                  const MoviePoster(),
+            child: response.when(
+              data: (data) => ListView.builder(
+                itemCount: popular.results?.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (BuildContext context, int index) =>
+                    MoviePoster(index: index),
+              ),
+              error: (error, stackTrace) => Text('Error: $error'),
+              loading: () => ListView.builder(
+                itemCount: 7,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (BuildContext context, int index) => Container(
+                  width: 133,
+                  height: 188,
+                  margin: const EdgeInsets.all(11),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -33,13 +57,18 @@ class MovieSlider extends StatelessWidget {
   }
 }
 
-class MoviePoster extends StatelessWidget {
+class MoviePoster extends ConsumerWidget {
+  final int index;
+
   const MoviePoster({
     super.key,
+    required this.index,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Popular popular = ref.watch(popularProvider);
+
     return Container(
       width: 133,
       height: 188,
@@ -50,9 +79,12 @@ class MoviePoster extends StatelessWidget {
             onTap: () => Navigator.of(context).pushNamed('details'),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(22),
-              child: const FadeInImage(
-                placeholder: AssetImage('assets/images/no-image.jpg'),
-                image: NetworkImage('https://via.placeholder.com/300x400'),
+              child: FadeInImage(
+                placeholder: const AssetImage('assets/images/no-image.jpg'),
+                //image: NetworkImage('https://via.placeholder.com/300x400'),
+                image: NetworkImage(
+                  'https://image.tmdb.org/t/p/w500${popular.results?[index].poster_path}',
+                ),
                 fit: BoxFit.cover,
                 width: 133,
                 height: 166,
@@ -60,8 +92,8 @@ class MoviePoster extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 3),
-          const Text(
-            'Adipisicing veniam anim tempor sunt enim labore.',
+          Text(
+            popular.results![index].title!,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,

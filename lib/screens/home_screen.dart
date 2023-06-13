@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
       body: const Column(
         children: [
           CardSwiper(),
-          MovieSlider(),
+          MovieSlider(title: 'Populares a nivel mundial'),
         ],
       ),
     );

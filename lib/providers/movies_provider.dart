@@ -52,34 +52,34 @@ class NowPlayingNotifier extends StateNotifier<NowPlaying> {
 
 final popularResponseProvider = FutureProvider<void>(
   (ref) async {
-      final Response response = await get(
-        Uri.https(
-          'api.themoviedb.org',
-          '3/movie/popular',
-          {
-            'api_key': '388f753b1e0ec598c03200049fe68367',
-            'language': 'en-US',
-            'page': '1',
-          },
-        ),
-      );
+    final Response response = await get(
+      Uri.https(
+        'api.themoviedb.org',
+        '3/movie/popular',
+        {
+          'api_key': '388f753b1e0ec598c03200049fe68367',
+          'language': 'en-US',
+          'page': ref.read(numberPageProvider).toString(),
+        },
+      ),
+    );
 
-      if (response.statusCode == 200) {
-        debugPrint('Datos recibidos con exito');
-        String data = utf8.decode(response.bodyBytes);
-        final dynamic json = jsonDecode(data);
-        final Popular popular = Popular.fromJson(json);
-        ref.read(popularProvider.notifier).savePopular(popular);
-      } else {
-        debugPrint(
-          "Ha ocurrido un error: Status Code ${response.statusCode.toString()}",
-        );
-      }
+    if (response.statusCode == 200) {
+      debugPrint('Datos recibidos con exito');
+      String data = utf8.decode(response.bodyBytes);
+      final dynamic json = jsonDecode(data);
+      final Popular popular = Popular.fromJson(json);
+      ref.read(popularProvider.notifier).savePopular(popular);
+      ref.read(continuosPopularProvider.notifier).savePopularMovies(ref.read(popularProvider).results!);
+    } else {
+      debugPrint(
+        "Ha ocurrido un error: Status Code ${response.statusCode.toString()}",
+      );
+    }
   },
 );
 
-final popularProvider =
-    StateNotifierProvider<PopularNotifier, Popular>((ref) {
+final popularProvider = StateNotifierProvider<PopularNotifier, Popular>((ref) {
   return PopularNotifier();
 });
 
@@ -90,3 +90,26 @@ class PopularNotifier extends StateNotifier<Popular> {
     state = popular.copyWith();
   }
 }
+
+final continuosPopularProvider =
+    StateNotifierProvider<ContinuosPopularNotifier, List<Result>>((ref) {
+  return ContinuosPopularNotifier();
+});
+
+class ContinuosPopularNotifier extends StateNotifier<List<Result>> {
+  ContinuosPopularNotifier() : super([]);
+
+  void savePopularMovies(List<Result> results) {
+    state = [...state, ...results];
+  }
+}
+
+final numberPageProvider = Provider<int>((ref) {
+  int numberPage = 1;
+
+  if (ref.read(popularProvider).page != null) {
+    return numberPage = ref.read(popularProvider).page! + 1;
+  } else {
+    return numberPage;
+  }
+});

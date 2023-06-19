@@ -1,41 +1,10 @@
-import 'dart:convert';
-
-import 'package:http/http.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:peliculas/models/models.dart';
 
-final nowPlayingResponseProvider = FutureProvider<void>(
-  (ref) async {
-    try {
-      final Response response = await get(
-        Uri.https(
-          'api.themoviedb.org',
-          '3/movie/now_playing',
-          {
-            'api_key': '388f753b1e0ec598c03200049fe68367',
-            'language': 'en-US',
-            'page': '1',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        debugPrint('Datos recibidos con exito');
-        String data = utf8.decode(response.bodyBytes);
-        final dynamic json = jsonDecode(data);
-        final NowPlaying nowPlaying = NowPlaying.fromJson(json);
-        ref.read(nowPlayingProvider.notifier).saveNowPlaying(nowPlaying);
-      } else {
-        debugPrint(
-          "Ha ocurrido un error: Status Code ${response.statusCode.toString()}",
-        );
-      }
-    } catch (e) {
-      debugPrint("Ha ocurrido un error global: ${e.toString()}");
-    }
-  },
-);
+final selectedMovie = StateProvider<Result>((ref) => const Result());
+final isLoadingProvider = StateProvider<bool>((ref) => false);
+final requestsProvider = StateProvider<int>((ref) => 0);
 
 final nowPlayingProvider =
     StateNotifierProvider<NowPlayingNotifier, NowPlaying>((ref) {
@@ -49,35 +18,6 @@ class NowPlayingNotifier extends StateNotifier<NowPlaying> {
     state = nowPlaying.copyWith();
   }
 }
-
-final popularResponseProvider = FutureProvider<void>(
-  (ref) async {
-    final Response response = await get(
-      Uri.https(
-        'api.themoviedb.org',
-        '3/movie/popular',
-        {
-          'api_key': '388f753b1e0ec598c03200049fe68367',
-          'language': 'en-US',
-          'page': ref.read(numberPageProvider).toString(),
-        },
-      ),
-    );
-
-    if (response.statusCode == 200) {
-      debugPrint('Datos recibidos con exito');
-      String data = utf8.decode(response.bodyBytes);
-      final dynamic json = jsonDecode(data);
-      final Popular popular = Popular.fromJson(json);
-      ref.read(popularProvider.notifier).savePopular(popular);
-      ref.read(continuosPopularProvider.notifier).savePopularMovies(ref.read(popularProvider).results!);
-    } else {
-      debugPrint(
-        "Ha ocurrido un error: Status Code ${response.statusCode.toString()}",
-      );
-    }
-  },
-);
 
 final popularProvider = StateNotifierProvider<PopularNotifier, Popular>((ref) {
   return PopularNotifier();
@@ -104,12 +44,22 @@ class ContinuosPopularNotifier extends StateNotifier<List<Result>> {
   }
 }
 
-final numberPageProvider = Provider<int>((ref) {
-  int numberPage = 1;
+final numberPageProvider = StateProvider<int>((ref) {
+  final popular = ref.watch(popularProvider);
 
-  if (ref.read(popularProvider).page != null) {
-    return numberPage = ref.read(popularProvider).page! + 1;
-  } else {
-    return numberPage;
-  }
+  if (popular.page == null) return 1;
+  return popular.page! + 1;
 });
+
+final moviesCastProvider =
+    StateNotifierProvider<MoviesCastNotifier, Map<int, List<Cast>>>((ref) {
+  return MoviesCastNotifier();
+});
+
+class MoviesCastNotifier extends StateNotifier<Map<int, List<Cast>>> {
+  MoviesCastNotifier() : super({});
+
+  void update(Credits credits) {
+    state = {...state, credits.id!: credits.cast!};
+  }
+}

@@ -3,6 +3,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:peliculas/models/models.dart';
+import 'package:peliculas/screens/screens.dart';
 import 'package:peliculas/providers/providers.dart';
 
 class CardSwiper extends ConsumerWidget {
@@ -25,22 +26,45 @@ class CardSwiper extends ConsumerWidget {
           itemHeight: MediaQuery.of(context).size.height * 0.44,
           itemBuilder: (context, index) {
             return InkWell(
-              onTap: () => Navigator.of(context).pushNamed('details'),
+              onTap: () {
+                ref.read(selectedMovie.notifier).state =
+                    nowPlaying.results![index].copyWith();
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const DetailsScreen(),
+                  ),
+                );
+              },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(22),
                 child: FadeInImage(
+                  fit: BoxFit.cover,
                   placeholder: const AssetImage('assets/images/no-image.jpg'),
                   image: NetworkImage(
-                    'https://image.tmdb.org/t/p/w500${nowPlaying.results![index].poster_path!}',
+                    'https://image.tmdb.org/t/p/w500${nowPlaying.results![index].poster_path}',
                   ),
-                  fit: BoxFit.cover,
+                  imageErrorBuilder: (context, error, stackTrace) =>
+                      Image.asset(
+                    'assets/images/no-image.jpg',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             );
           },
         ),
       ),
-      error: (error, stackTrace) => Text('Error: $error'),
+      error: (error, stackTrace) {
+        debugPrint('Error: $error');
+        return Container(
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height * 0.5,
+          color: Colors.white,
+          child: const Center(
+            child: CircularProgressIndicator.adaptive(),
+          ),
+        );
+      },
       loading: () => Container(
         width: double.infinity,
         height: MediaQuery.of(context).size.height * 0.5,

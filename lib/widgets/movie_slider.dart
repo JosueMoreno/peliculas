@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:peliculas/models/models.dart';
+import 'package:peliculas/screens/screens.dart';
 import 'package:peliculas/providers/providers.dart';
 
 class MovieSlider extends ConsumerStatefulWidget {
@@ -20,7 +21,7 @@ class _MovieSliderState extends ConsumerState<MovieSlider> {
     super.initState();
     scrollController = ScrollController();
     scrollController.addListener(() {
-      //ref.read(popularResponseProvider); //Buscar realizar una llamada al servidor y no varias
+      requestMovies(ref, scrollController);
     });
   }
 
@@ -32,8 +33,7 @@ class _MovieSliderState extends ConsumerState<MovieSlider> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<void> response = ref.watch(popularResponseProvider);
-    final List<Result> movies = ref.watch(continuosPopularProvider);
+    final AsyncValue<List<Result>> response = ref.watch(popularResponseProvider);
 
     return SizedBox(
       height: 266,
@@ -46,19 +46,23 @@ class _MovieSliderState extends ConsumerState<MovieSlider> {
               padding: const EdgeInsets.symmetric(horizontal: 13.0),
               child: Text(
                 widget.title!,
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           const SizedBox(height: 7),
           Expanded(
             child: response.when(
+              skipLoadingOnReload: true,
               data: (data) => ListView.builder(
-                itemCount: movies.length,
+                itemCount: data.length,
                 scrollDirection: Axis.horizontal,
                 controller: scrollController,
-                itemBuilder: (BuildContext context, int index) =>
-                    MoviePoster(index: index),
+                itemBuilder: (BuildContext context, int index) {
+                  return MoviePoster(movie: data[index]);
+                },
               ),
               error: (error, stackTrace) => Text('Error: $error'),
               loading: () => ListView.builder(
@@ -82,18 +86,15 @@ class _MovieSliderState extends ConsumerState<MovieSlider> {
 }
 
 class MoviePoster extends ConsumerWidget {
-  final int index;
+  final Result movie;
 
   const MoviePoster({
     super.key,
-    required this.index,
+    required this.movie,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<Result> movies = ref.watch(continuosPopularProvider);
-    debugPrint('Item created at $index');
-
     return Container(
       width: 133,
       height: 188,
@@ -101,23 +102,36 @@ class MoviePoster extends ConsumerWidget {
       child: Column(
         children: [
           InkWell(
-            onTap: () => Navigator.of(context).pushNamed('details'),
+            onTap: () {
+              ref.read(selectedMovie.notifier).state = movie.copyWith();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const DetailsScreen(),
+                ),
+              );
+            },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(22),
               child: FadeInImage(
-                placeholder: const AssetImage('assets/images/no-image.jpg'),
-                image: NetworkImage(
-                  'https://image.tmdb.org/t/p/w500${movies[index].poster_path}',
-                ),
-                fit: BoxFit.cover,
                 width: 133,
                 height: 166,
+                fit: BoxFit.cover,
+                placeholder: const AssetImage('assets/images/no-image.jpg'),
+                image: NetworkImage(
+                  'https://image.tmdb.org/t/p/w500${movie.poster_path}',
+                ),
+                imageErrorBuilder: (context, error, stackTrace) => Image.asset(
+                  'assets/images/no-image.jpg',
+                  fit: BoxFit.cover,
+                  width: 133,
+                  height: 166,
+                ),
               ),
             ),
           ),
           const SizedBox(height: 3),
           Text(
-            movies[index].title!,
+            movie.title!,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
@@ -125,5 +139,20 @@ class MoviePoster extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+Future<void> requestMovies(WidgetRef ref, ScrollController ctr) async {
+  if (ctr.offset + 300 > ctr.position.maxScrollExtent) {
+    if (ref.read(isLoadingProvider)) {
+      debugPrint('Peticion rechazada');
+      return;
+    }
+    debugPrint('Peticion aceptada');
+    ref.read(isLoadingProvider.notifier).state = true;
+    ref.read(requestsProvider.notifier).state++;
+    //await fetchMovies(ref);
+    await Future.delayed(const Duration(milliseconds: 222));
+    ref.read(isLoadingProvider.notifier).state = false;
   }
 }

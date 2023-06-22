@@ -8,7 +8,7 @@ part 'now_playing_response.g.dart';
 @freezed
 class NowPlaying with _$NowPlaying {
   const factory NowPlaying({
-    Dates? dates,
+    Map<String, String>? dates,
     int? page,
     List<Result>? results,
     int? total_pages,
@@ -17,16 +17,6 @@ class NowPlaying with _$NowPlaying {
 
   factory NowPlaying.fromJson(Map<String, Object?> json) =>
       _$NowPlayingFromJson(json);
-}
-
-@freezed
-class Dates with _$Dates {
-  const factory Dates({
-    DateTime? maximum,
-    DateTime? minimum,
-  }) = _Dates;
-
-  factory Dates.fromJson(Map<String, Object?> json) => _$DatesFromJson(json);
 }
 
 @freezed
@@ -41,7 +31,7 @@ class Result with _$Result {
     String? overview,
     double? popularity,
     String? poster_path,
-    DateTime? release_date,
+    String? release_date,
     String? title,
     bool? video,
     double? vote_average,

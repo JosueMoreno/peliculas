@@ -12,11 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Material App',
-      initialRoute: "home",
-      routes: {
-        "home": (context) => const HomeScreen(),
-        "details": (context) => const DetailsScreen(),
-      },
+      home: const HomeScreen(),
       theme: ThemeData.light().copyWith(
         appBarTheme: const AppBarTheme(
           color: Colors.purple,

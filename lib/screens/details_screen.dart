@@ -47,18 +47,19 @@ class CustomAppBar extends ConsumerWidget {
           color: Colors.black12,
           padding: const EdgeInsets.only(bottom: 7, left: 11, right: 11),
           child: Text(
-            ref.read(selectedMovie).title ?? 'Movie Title',
+            ref.read(selectedMovieProvider).title ?? 'Movie Title',
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        background: FadeInImage(
+        background: FadeInImage.assetNetwork(
           fit: BoxFit.cover,
-          placeholder: const AssetImage('assets/images/loading.gif'),
-          image: NetworkImage(
-            'https://image.tmdb.org/t/p/w500${ref.read(selectedMovie).backdrop_path}',
-          ),
+          placeholder: 'assets/images/loading.gif',
+          image:
+              'https://image.tmdb.org/t/p/w500${ref.read(selectedMovieProvider).backdrop_path}',
+          placeholderErrorBuilder: (context, error, stackTrace) =>
+              Text('Error $error'),
           imageErrorBuilder: (context, error, stackTrace) => Image.asset(
             'assets/images/no-image.jpg',
             fit: BoxFit.cover,
@@ -79,17 +80,21 @@ class PosterAndTitle extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 22),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(22),
-            child: FadeInImage(
-              height: 155,
-              placeholder: const AssetImage('assets/images/no-image.jpg'),
-              image: NetworkImage(
-                'https://image.tmdb.org/t/p/w500${ref.read(selectedMovie).poster_path}',
-              ),
-              imageErrorBuilder: (context, error, stackTrace) => Image.asset(
-                'assets/images/no-image.jpg',
+          Hero(
+            tag: ref.read(keyProvider),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: FadeInImage.assetNetwork(
                 height: 155,
+                placeholder: 'assets/images/loading.gif',
+                image:
+                    'https://image.tmdb.org/t/p/w500${ref.read(selectedMovieProvider).poster_path}',
+                placeholderErrorBuilder: (context, error, stackTrace) =>
+                    Text('Error $error'),
+                imageErrorBuilder: (context, error, stackTrace) => Image.asset(
+                  'assets/images/no-image.jpg',
+                  height: 155,
+                ),
               ),
             ),
           ),
@@ -99,14 +104,15 @@ class PosterAndTitle extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  ref.read(selectedMovie).title ?? 'movie.title',
+                  ref.read(selectedMovieProvider).title ?? 'movie.title',
                   style: Theme.of(context).textTheme.headlineSmall,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  ref.read(selectedMovie).original_title ?? 'movie.originalTitle',
+                  ref.read(selectedMovieProvider).original_title ??
+                      'movie.originalTitle',
                   style: Theme.of(context).textTheme.titleMedium,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -120,7 +126,7 @@ class PosterAndTitle extends ConsumerWidget {
                     ),
                     const SizedBox(width: 7),
                     Text(
-                      ref.read(selectedMovie).vote_average.toString(),
+                      ref.read(selectedMovieProvider).vote_average.toString(),
                       style: Theme.of(context).textTheme.bodySmall,
                     )
                   ],
@@ -145,7 +151,7 @@ class Overview extends ConsumerWidget {
         vertical: 13,
       ),
       child: Text(
-        ref.read(selectedMovie).overview ??
+        ref.read(selectedMovieProvider).overview ??
             """Eu sunt mollit ex excepteur nulla consectetur mollit ullamco sint. 
         Pariatur non anim et fugiat ipsum cillum consectetur Lorem laborum. 
         Labore sunt ad anim dolor sunt tempor cillum laborum. Do qui excepteur 

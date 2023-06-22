@@ -8,9 +8,9 @@ part of 'now_playing_response.dart';
 
 _$_NowPlaying _$$_NowPlayingFromJson(Map<String, dynamic> json) =>
     _$_NowPlaying(
-      dates: json['dates'] == null
-          ? null
-          : Dates.fromJson(json['dates'] as Map<String, dynamic>),
+      dates: (json['dates'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ),
       page: json['page'] as int?,
       results: (json['results'] as List<dynamic>?)
           ?.map((e) => Result.fromJson(e as Map<String, dynamic>))
@@ -28,20 +28,6 @@ Map<String, dynamic> _$$_NowPlayingToJson(_$_NowPlaying instance) =>
       'total_results': instance.total_results,
     };
 
-_$_Dates _$$_DatesFromJson(Map<String, dynamic> json) => _$_Dates(
-      maximum: json['maximum'] == null
-          ? null
-          : DateTime.parse(json['maximum'] as String),
-      minimum: json['minimum'] == null
-          ? null
-          : DateTime.parse(json['minimum'] as String),
-    );
-
-Map<String, dynamic> _$$_DatesToJson(_$_Dates instance) => <String, dynamic>{
-      'maximum': instance.maximum?.toIso8601String(),
-      'minimum': instance.minimum?.toIso8601String(),
-    };
-
 _$_Result _$$_ResultFromJson(Map<String, dynamic> json) => _$_Result(
       adult: json['adult'] as bool?,
       backdrop_path: json['backdrop_path'] as String?,
@@ -53,9 +39,7 @@ _$_Result _$$_ResultFromJson(Map<String, dynamic> json) => _$_Result(
       overview: json['overview'] as String?,
       popularity: (json['popularity'] as num?)?.toDouble(),
       poster_path: json['poster_path'] as String?,
-      release_date: json['release_date'] == null
-          ? null
-          : DateTime.parse(json['release_date'] as String),
+      release_date: json['release_date'] as String?,
       title: json['title'] as String?,
       video: json['video'] as bool?,
       vote_average: (json['vote_average'] as num?)?.toDouble(),
@@ -72,7 +56,7 @@ Map<String, dynamic> _$$_ResultToJson(_$_Result instance) => <String, dynamic>{
       'overview': instance.overview,
       'popularity': instance.popularity,
       'poster_path': instance.poster_path,
-      'release_date': instance.release_date?.toIso8601String(),
+      'release_date': instance.release_date,
       'title': instance.title,
       'video': instance.video,
       'vote_average': instance.vote_average,

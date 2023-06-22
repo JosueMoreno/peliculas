@@ -11,7 +11,8 @@ class HomeScreen extends StatelessWidget {
         title: const Text('Catalogo Peliculas'),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () =>
+                showSearch(context: context, delegate: MovieSearch()),
             icon: const Icon(Icons.search_rounded),
           ),
         ],
@@ -19,7 +20,7 @@ class HomeScreen extends StatelessWidget {
       body: const Column(
         children: [
           CardSwiper(),
-          MovieSlider(title: 'Populares a nivel mundial'),
+          MovieSlider(title: 'Populares'),
         ],
       ),
     );

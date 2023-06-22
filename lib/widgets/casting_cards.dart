@@ -9,7 +9,7 @@ class CastingCards extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<Cast>> cast = ref.watch(getMoviesCastProvider);
+    final AsyncValue<List<Cast>> cast = ref.watch(getCastProvider);
 
     return cast.when(
       data: (data) => Container(
@@ -42,7 +42,7 @@ class CastingCards extends ConsumerWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(22),
                     child: const Center(
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator.adaptive(),
                     ),
                   ),
                 ],
@@ -72,14 +72,12 @@ class CastCard extends StatelessWidget {
             flex: 9,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(22),
-              child: FadeInImage(
+              child: FadeInImage.assetNetwork(
                 width: 111,
                 height: 144,
                 fit: BoxFit.cover,
-                placeholder: const AssetImage('assets/images/no-image.jpg'),
-                image: NetworkImage(
-                  'https://image.tmdb.org/t/p/w500${actor.profile_path}',
-                ),
+                placeholder: 'assets/images/no-image.jpg',
+                image: 'https://image.tmdb.org/t/p/w500${actor.profile_path}',
                 imageErrorBuilder: (context, error, stackTrace) => Image.asset(
                   'assets/images/no-image.jpg',
                   fit: BoxFit.cover,

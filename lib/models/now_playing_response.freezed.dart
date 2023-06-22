@@ -20,7 +20,7 @@ NowPlaying _$NowPlayingFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$NowPlaying {
-  Dates? get dates => throw _privateConstructorUsedError;
+  Map<String, String>? get dates => throw _privateConstructorUsedError;
   int? get page => throw _privateConstructorUsedError;
   List<Result>? get results => throw _privateConstructorUsedError;
   int? get total_pages => throw _privateConstructorUsedError;
@@ -39,13 +39,11 @@ abstract class $NowPlayingCopyWith<$Res> {
       _$NowPlayingCopyWithImpl<$Res, NowPlaying>;
   @useResult
   $Res call(
-      {Dates? dates,
+      {Map<String, String>? dates,
       int? page,
       List<Result>? results,
       int? total_pages,
       int? total_results});
-
-  $DatesCopyWith<$Res>? get dates;
 }
 
 /// @nodoc
@@ -71,7 +69,7 @@ class _$NowPlayingCopyWithImpl<$Res, $Val extends NowPlaying>
       dates: freezed == dates
           ? _value.dates
           : dates // ignore: cast_nullable_to_non_nullable
-              as Dates?,
+              as Map<String, String>?,
       page: freezed == page
           ? _value.page
           : page // ignore: cast_nullable_to_non_nullable
@@ -90,18 +88,6 @@ class _$NowPlayingCopyWithImpl<$Res, $Val extends NowPlaying>
               as int?,
     ) as $Val);
   }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $DatesCopyWith<$Res>? get dates {
-    if (_value.dates == null) {
-      return null;
-    }
-
-    return $DatesCopyWith<$Res>(_value.dates!, (value) {
-      return _then(_value.copyWith(dates: value) as $Val);
-    });
-  }
 }
 
 /// @nodoc
@@ -113,14 +99,11 @@ abstract class _$$_NowPlayingCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {Dates? dates,
+      {Map<String, String>? dates,
       int? page,
       List<Result>? results,
       int? total_pages,
       int? total_results});
-
-  @override
-  $DatesCopyWith<$Res>? get dates;
 }
 
 /// @nodoc
@@ -142,9 +125,9 @@ class __$$_NowPlayingCopyWithImpl<$Res>
   }) {
     return _then(_$_NowPlaying(
       dates: freezed == dates
-          ? _value.dates
+          ? _value._dates
           : dates // ignore: cast_nullable_to_non_nullable
-              as Dates?,
+              as Map<String, String>?,
       page: freezed == page
           ? _value.page
           : page // ignore: cast_nullable_to_non_nullable
@@ -169,18 +152,27 @@ class __$$_NowPlayingCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_NowPlaying with DiagnosticableTreeMixin implements _NowPlaying {
   const _$_NowPlaying(
-      {this.dates,
+      {final Map<String, String>? dates,
       this.page,
       final List<Result>? results,
       this.total_pages,
       this.total_results})
-      : _results = results;
+      : _dates = dates,
+        _results = results;
 
   factory _$_NowPlaying.fromJson(Map<String, dynamic> json) =>
       _$$_NowPlayingFromJson(json);
 
+  final Map<String, String>? _dates;
   @override
-  final Dates? dates;
+  Map<String, String>? get dates {
+    final value = _dates;
+    if (value == null) return null;
+    if (_dates is EqualUnmodifiableMapView) return _dates;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
   @override
   final int? page;
   final List<Result>? _results;
@@ -220,7 +212,7 @@ class _$_NowPlaying with DiagnosticableTreeMixin implements _NowPlaying {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_NowPlaying &&
-            (identical(other.dates, dates) || other.dates == dates) &&
+            const DeepCollectionEquality().equals(other._dates, _dates) &&
             (identical(other.page, page) || other.page == page) &&
             const DeepCollectionEquality().equals(other._results, _results) &&
             (identical(other.total_pages, total_pages) ||
@@ -233,7 +225,7 @@ class _$_NowPlaying with DiagnosticableTreeMixin implements _NowPlaying {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      dates,
+      const DeepCollectionEquality().hash(_dates),
       page,
       const DeepCollectionEquality().hash(_results),
       total_pages,
@@ -255,7 +247,7 @@ class _$_NowPlaying with DiagnosticableTreeMixin implements _NowPlaying {
 
 abstract class _NowPlaying implements NowPlaying {
   const factory _NowPlaying(
-      {final Dates? dates,
+      {final Map<String, String>? dates,
       final int? page,
       final List<Result>? results,
       final int? total_pages,
@@ -265,7 +257,7 @@ abstract class _NowPlaying implements NowPlaying {
       _$_NowPlaying.fromJson;
 
   @override
-  Dates? get dates;
+  Map<String, String>? get dates;
   @override
   int? get page;
   @override
@@ -277,161 +269,6 @@ abstract class _NowPlaying implements NowPlaying {
   @override
   @JsonKey(ignore: true)
   _$$_NowPlayingCopyWith<_$_NowPlaying> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-Dates _$DatesFromJson(Map<String, dynamic> json) {
-  return _Dates.fromJson(json);
-}
-
-/// @nodoc
-mixin _$Dates {
-  DateTime? get maximum => throw _privateConstructorUsedError;
-  DateTime? get minimum => throw _privateConstructorUsedError;
-
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $DatesCopyWith<Dates> get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $DatesCopyWith<$Res> {
-  factory $DatesCopyWith(Dates value, $Res Function(Dates) then) =
-      _$DatesCopyWithImpl<$Res, Dates>;
-  @useResult
-  $Res call({DateTime? maximum, DateTime? minimum});
-}
-
-/// @nodoc
-class _$DatesCopyWithImpl<$Res, $Val extends Dates>
-    implements $DatesCopyWith<$Res> {
-  _$DatesCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? maximum = freezed,
-    Object? minimum = freezed,
-  }) {
-    return _then(_value.copyWith(
-      maximum: freezed == maximum
-          ? _value.maximum
-          : maximum // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      minimum: freezed == minimum
-          ? _value.minimum
-          : minimum // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-    ) as $Val);
-  }
-}
-
-/// @nodoc
-abstract class _$$_DatesCopyWith<$Res> implements $DatesCopyWith<$Res> {
-  factory _$$_DatesCopyWith(_$_Dates value, $Res Function(_$_Dates) then) =
-      __$$_DatesCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({DateTime? maximum, DateTime? minimum});
-}
-
-/// @nodoc
-class __$$_DatesCopyWithImpl<$Res> extends _$DatesCopyWithImpl<$Res, _$_Dates>
-    implements _$$_DatesCopyWith<$Res> {
-  __$$_DatesCopyWithImpl(_$_Dates _value, $Res Function(_$_Dates) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? maximum = freezed,
-    Object? minimum = freezed,
-  }) {
-    return _then(_$_Dates(
-      maximum: freezed == maximum
-          ? _value.maximum
-          : maximum // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      minimum: freezed == minimum
-          ? _value.minimum
-          : minimum // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$_Dates with DiagnosticableTreeMixin implements _Dates {
-  const _$_Dates({this.maximum, this.minimum});
-
-  factory _$_Dates.fromJson(Map<String, dynamic> json) =>
-      _$$_DatesFromJson(json);
-
-  @override
-  final DateTime? maximum;
-  @override
-  final DateTime? minimum;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Dates(maximum: $maximum, minimum: $minimum)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'Dates'))
-      ..add(DiagnosticsProperty('maximum', maximum))
-      ..add(DiagnosticsProperty('minimum', minimum));
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$_Dates &&
-            (identical(other.maximum, maximum) || other.maximum == maximum) &&
-            (identical(other.minimum, minimum) || other.minimum == minimum));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(runtimeType, maximum, minimum);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$_DatesCopyWith<_$_Dates> get copyWith =>
-      __$$_DatesCopyWithImpl<_$_Dates>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$_DatesToJson(
-      this,
-    );
-  }
-}
-
-abstract class _Dates implements Dates {
-  const factory _Dates({final DateTime? maximum, final DateTime? minimum}) =
-      _$_Dates;
-
-  factory _Dates.fromJson(Map<String, dynamic> json) = _$_Dates.fromJson;
-
-  @override
-  DateTime? get maximum;
-  @override
-  DateTime? get minimum;
-  @override
-  @JsonKey(ignore: true)
-  _$$_DatesCopyWith<_$_Dates> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -450,7 +287,7 @@ mixin _$Result {
   String? get overview => throw _privateConstructorUsedError;
   double? get popularity => throw _privateConstructorUsedError;
   String? get poster_path => throw _privateConstructorUsedError;
-  DateTime? get release_date => throw _privateConstructorUsedError;
+  String? get release_date => throw _privateConstructorUsedError;
   String? get title => throw _privateConstructorUsedError;
   bool? get video => throw _privateConstructorUsedError;
   double? get vote_average => throw _privateConstructorUsedError;
@@ -476,7 +313,7 @@ abstract class $ResultCopyWith<$Res> {
       String? overview,
       double? popularity,
       String? poster_path,
-      DateTime? release_date,
+      String? release_date,
       String? title,
       bool? video,
       double? vote_average,
@@ -551,7 +388,7 @@ class _$ResultCopyWithImpl<$Res, $Val extends Result>
       release_date: freezed == release_date
           ? _value.release_date
           : release_date // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+              as String?,
       title: freezed == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -588,7 +425,7 @@ abstract class _$$_ResultCopyWith<$Res> implements $ResultCopyWith<$Res> {
       String? overview,
       double? popularity,
       String? poster_path,
-      DateTime? release_date,
+      String? release_date,
       String? title,
       bool? video,
       double? vote_average,
@@ -660,7 +497,7 @@ class __$$_ResultCopyWithImpl<$Res>
       release_date: freezed == release_date
           ? _value.release_date
           : release_date // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+              as String?,
       title: freezed == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -731,7 +568,7 @@ class _$_Result with DiagnosticableTreeMixin implements _Result {
   @override
   final String? poster_path;
   @override
-  final DateTime? release_date;
+  final String? release_date;
   @override
   final String? title;
   @override
@@ -842,7 +679,7 @@ abstract class _Result implements Result {
       final String? overview,
       final double? popularity,
       final String? poster_path,
-      final DateTime? release_date,
+      final String? release_date,
       final String? title,
       final bool? video,
       final double? vote_average,
@@ -869,7 +706,7 @@ abstract class _Result implements Result {
   @override
   String? get poster_path;
   @override
-  DateTime? get release_date;
+  String? get release_date;
   @override
   String? get title;
   @override

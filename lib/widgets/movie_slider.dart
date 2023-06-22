@@ -14,12 +14,11 @@ class MovieSlider extends ConsumerStatefulWidget {
 }
 
 class _MovieSliderState extends ConsumerState<MovieSlider> {
-  late final ScrollController scrollController;
+  final ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    scrollController = ScrollController();
     scrollController.addListener(() {
       requestMovies(ref, scrollController);
     });
@@ -33,7 +32,7 @@ class _MovieSliderState extends ConsumerState<MovieSlider> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<List<Result>> response = ref.watch(popularResponseProvider);
+    final AsyncValue<List<Result>> popular = ref.watch(getPopularProvider);
 
     return SizedBox(
       height: 266,
@@ -54,7 +53,7 @@ class _MovieSliderState extends ConsumerState<MovieSlider> {
             ),
           const SizedBox(height: 7),
           Expanded(
-            child: response.when(
+            child: popular.when(
               skipLoadingOnReload: true,
               data: (data) => ListView.builder(
                 itemCount: data.length,
@@ -73,7 +72,7 @@ class _MovieSliderState extends ConsumerState<MovieSlider> {
                   height: 188,
                   margin: const EdgeInsets.all(11),
                   child: const Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator.adaptive(),
                   ),
                 ),
               ),
@@ -103,28 +102,31 @@ class MoviePoster extends ConsumerWidget {
         children: [
           InkWell(
             onTap: () {
-              ref.read(selectedMovie.notifier).state = movie.copyWith();
+              ref.read(keyProvider.notifier).state = Key('${movie.id}');
+              ref.read(selectedMovieProvider.notifier).state = movie.copyWith();
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => const DetailsScreen(),
                 ),
               );
             },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(22),
-              child: FadeInImage(
-                width: 133,
-                height: 166,
-                fit: BoxFit.cover,
-                placeholder: const AssetImage('assets/images/no-image.jpg'),
-                image: NetworkImage(
-                  'https://image.tmdb.org/t/p/w500${movie.poster_path}',
-                ),
-                imageErrorBuilder: (context, error, stackTrace) => Image.asset(
-                  'assets/images/no-image.jpg',
-                  fit: BoxFit.cover,
+            child: Hero(
+              tag: Key('${movie.id}'),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: FadeInImage.assetNetwork(
                   width: 133,
                   height: 166,
+                  fit: BoxFit.cover,
+                  placeholder: 'assets/images/no-image.jpg',
+                  image: 'https://image.tmdb.org/t/p/w500${movie.poster_path}',
+                  imageErrorBuilder: (context, error, stackTrace) =>
+                      Image.asset(
+                    'assets/images/no-image.jpg',
+                    fit: BoxFit.cover,
+                    width: 133,
+                    height: 166,
+                  ),
                 ),
               ),
             ),
@@ -143,15 +145,10 @@ class MoviePoster extends ConsumerWidget {
 }
 
 Future<void> requestMovies(WidgetRef ref, ScrollController ctr) async {
-  if (ctr.offset + 300 > ctr.position.maxScrollExtent) {
-    if (ref.read(isLoadingProvider)) {
-      debugPrint('Peticion rechazada');
-      return;
-    }
-    debugPrint('Peticion aceptada');
+  if (ctr.offset + 333 > ctr.position.maxScrollExtent) {
+    if (ref.read(isLoadingProvider)) return;
     ref.read(isLoadingProvider.notifier).state = true;
-    ref.read(requestsProvider.notifier).state++;
-    //await fetchMovies(ref);
+    ref.read(numberPageProvider.notifier).state++;
     await Future.delayed(const Duration(milliseconds: 222));
     ref.read(isLoadingProvider.notifier).state = false;
   }

@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peliculas/models/models.dart';
 import 'package:peliculas/providers/providers.dart';
 
-final nowPlayingResponseProvider = FutureProvider<void>(
+final getNowPlayingProvider = FutureProvider<NowPlaying>(
   (ref) async {
     try {
       final Response response = await get(
@@ -27,8 +27,7 @@ final nowPlayingResponseProvider = FutureProvider<void>(
         String data = utf8.decode(response.bodyBytes);
         final dynamic json = jsonDecode(data);
         final NowPlaying nowPlaying = NowPlaying.fromJson(json);
-        ref.read(nowPlayingProvider.notifier).saveNowPlaying(nowPlaying);
-        return;
+        return nowPlaying;
       } else {
         debugPrint(
           "Ha ocurrido un error: Status Code ${response.statusCode.toString()}",
@@ -42,45 +41,40 @@ final nowPlayingResponseProvider = FutureProvider<void>(
   },
 );
 
-final popularResponseProvider = FutureProvider<List<Result>>(
+final getPopularProvider = FutureProvider<List<Result>>(
   (ref) async {
-    final request = ref.watch(requestsProvider);
-    debugPrint('Ejecutando FutureProvider. Peticion # $request');
+    final int page = ref.watch(numberPageProvider);
 
-      final Response response = await get(
-        Uri.https(
-          'api.themoviedb.org',
-          '3/movie/popular',
-          {
-            'api_key': '388f753b1e0ec598c03200049fe68367',
-            'language': 'en-US',
-            'page': '${ref.read(numberPageProvider)}',
-          },
-        ),
+    final Response response = await get(
+      Uri.https(
+        'api.themoviedb.org',
+        '3/movie/popular',
+        {
+          'api_key': '388f753b1e0ec598c03200049fe68367',
+          'language': 'en-US',
+          'page': '$page',
+        },
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      //debugPrint('Datos recibidos con exito');
+      String data = utf8.decode(response.bodyBytes);
+      final dynamic json = jsonDecode(data);
+      final Popular popular = Popular.fromJson(json);
+      ref.read(popularProvider.notifier).save(popular.results!);
+      return ref.read(popularProvider);
+    } else {
+      debugPrint(
+        "Ha ocurrido un error: Status Code ${response.statusCode.toString()}",
       );
-
-      if (response.statusCode == 200) {
-        //debugPrint('Datos recibidos con exito');
-        String data = utf8.decode(response.bodyBytes);
-        final dynamic json = jsonDecode(data);
-        final Popular popular = Popular.fromJson(json);
-        ref.read(popularProvider.notifier).savePopular(popular);
-        ref
-            .read(continuosPopularProvider.notifier)
-            .savePopularMovies(ref.read(popularProvider).results!);
-        debugPrint('Peticion terminada');
-        return ref.read(continuosPopularProvider);
-      } else {
-        debugPrint(
-          "Ha ocurrido un error: Status Code ${response.statusCode.toString()}",
-        );
-        throw Exception();
-      }
+      throw Exception();
+    }
   },
 );
 
-final getMoviesCastProvider = FutureProvider<List<Cast>>((ref) async {
-  final Result movie = ref.watch(selectedMovie);
+final getCastProvider = FutureProvider<List<Cast>>((ref) async {
+  final Result movie = ref.watch(selectedMovieProvider);
 
   if (ref.read(moviesCastProvider).containsKey(movie.id)) {
     return ref.read(moviesCastProvider)[movie.id]!;
@@ -97,7 +91,7 @@ final getMoviesCastProvider = FutureProvider<List<Cast>>((ref) async {
   );
 
   if (response.statusCode == 200) {
-    debugPrint('Datos recibidos con exito from movie ID: ${movie.id}');
+    //debugPrint('Datos recibidos con exito from movie ID: ${movie.id}');
     String data = utf8.decode(response.bodyBytes);
     final dynamic json = jsonDecode(data);
     final Credits credits = Credits.fromJson(json);
@@ -107,35 +101,39 @@ final getMoviesCastProvider = FutureProvider<List<Cast>>((ref) async {
     debugPrint(
       "Ha ocurrido un error: Status Code ${response.statusCode.toString()}",
     );
-    throw Exception();
+    throw Exception("Error Status Code: ${response.statusCode.toString()}");
   }
 });
 
-Future<void> fetchMovies(WidgetRef ref) async {
-  final Response response = await get(
-    Uri.https(
-      'api.themoviedb.org',
-      '3/movie/popular',
-      {
-        'api_key': '388f753b1e0ec598c03200049fe68367',
-        'language': 'en-US',
-        'page': ref.read(numberPageProvider).toString(),
-      },
-    ),
-  );
+final getSearchProvider = FutureProvider<List<Result>>((ref) async {
+  final String query = ref.watch(queryProvider);
 
-  if (response.statusCode == 200) {
-    debugPrint('Datos recibidos con exito');
-    String data = utf8.decode(response.bodyBytes);
-    final dynamic json = jsonDecode(data);
-    final Popular popular = Popular.fromJson(json);
-    ref.read(popularProvider.notifier).savePopular(popular);
-    ref
-        .read(continuosPopularProvider.notifier)
-        .savePopularMovies(ref.read(popularProvider).results!);
-  } else {
-    debugPrint(
-      "Ha ocurrido un error: Status Code ${response.statusCode.toString()}",
+  try {
+    final Response response = await get(
+      Uri.https(
+        'api.themoviedb.org',
+        '3/search/movie',
+        {
+          'query': query,
+          'api_key': '388f753b1e0ec598c03200049fe68367',
+        },
+      ),
     );
+
+    if (response.statusCode == 200) {
+      //debugPrint('Datos recibidos con exito');
+      String data = utf8.decode(response.bodyBytes);
+      final dynamic json = jsonDecode(data);
+      final SearchResponse searchResponse = SearchResponse.fromJson(json);
+      return searchResponse.results!;
+    } else {
+      debugPrint(
+        "Ha ocurrido un error: Status Code ${response.statusCode.toString()}",
+      );
+      throw Exception("Error Status Code: ${response.statusCode.toString()}");
+    }
+  } catch (e) {
+    debugPrint("Ha ocurrido un error global: ${e.toString()}");
+    throw Exception("Error global: ${e.toString()}");
   }
-}
+});
